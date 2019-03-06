@@ -1,10 +1,16 @@
 {
-    "level":{
-        "timespan": 200,
-        "obstacleList":[
-            {
-                
-            }
-        ]
-    }
+"level":{
+    "timespan": 200,
+    "obstacleList":[
+        {
+            "timestamp" : 10,
+            "position" : [0,1,0],
+            "collectable": 0,
+            "goodActions":["duck"],
+            "badActions":["jump"],
+            "scoreAdjust":-10,
+            "avoidanceAdjust":0
+        }
+    ]
+}
 }

@@ -7,8 +7,8 @@
 
 typedef struct
 {
-    List *obstacleList;     /**<list of obstacles in the game level*/
-    Uint32 levelTime;       /**<how long this level should take to complete*/
+    List *objectList;     /**<list of obstacles in the game level*/
+    Uint32 timespan;       /**<how long this level should take to complete*/
 }Level;
 
 

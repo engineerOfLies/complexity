@@ -1,0 +1,23 @@
+{
+"actionList" :
+[
+    {
+        "name":"jump",
+        "leadInTime":10,
+        "cooldownTime":10,
+        "difficultyWeight":1
+    },
+    {
+        "name":"speedup",
+        "leadInTime":10,
+        "cooldownTime":10,
+        "difficultyWeight":1
+    },
+    {
+        "name":"slowdown",
+        "leadInTime":10,
+        "cooldownTime":10,
+        "difficultyWeight":1
+    }
+]
+}
