@@ -1,24 +1,24 @@
-#include "actions.h"
+#include "game_actions.h"
 #include "simple_logger.h"
 #include "gf2d_config.h"
 #include <stdlib.h>
 
-Action *action_new()
+GameAction *action_new()
 {
-    Action *action;
-    action = (Action*)malloc(sizeof(Action));
+    GameAction *action;
+    action = (GameAction*)malloc(sizeof(GameAction));
     if (!action)
     {
         slog("failed to allocate memory for a new action");
         return NULL;
     }
-    memset(action,0,sizeof(Action));
+    memset(action,0,sizeof(GameAction));
     return action;
 }
 
-Action *action_parse(SJson *json)
+GameAction *action_parse(SJson *json)
 {
-    Action *action;
+    GameAction *action;
     int number;
     if (!json)return NULL;
     action = action_new();
@@ -33,21 +33,21 @@ Action *action_parse(SJson *json)
     return action;
 }
 
-void action_free(Action *action)
+void action_free(GameAction *action)
 {
     if (!action)return;
     free(action);
 }
 
-Action *action_list_get(List *list,char *name)
+GameAction *action_list_get(List *list,char *name)
 {
     int i,count;
-    Action *action;
+    GameAction *action;
     if (!list)return NULL;
     count = gf2d_list_get_count(list);
     for (i = 0; i < count; i++)
     {
-        action = (Action*)gf2d_list_get_nth(list,i);
+        action = (GameAction*)gf2d_list_get_nth(list,i);
         if (!action)continue;
         if (strcmp(action->name,name)==0)
         {
@@ -60,12 +60,12 @@ Action *action_list_get(List *list,char *name)
 void action_list_free(List *list)
 {
     int i, count;
-    Action *action;
+    GameAction *action;
     if (!list)return;
     count = gf2d_list_get_count(list);
     for (i = 0; i < count;i++)
     {
-        action = (Action *)gf2d_list_get_nth(list,i);
+        action = (GameAction *)gf2d_list_get_nth(list,i);
         if (!action)continue;
         action_free(action);
     }
@@ -76,7 +76,7 @@ List *action_list_load(char *filename)
 {
     int i,count;
     List *list;
-    Action *action;
+    GameAction *action;
     SJson *file,*data,*item;
     file = sj_load(filename);
     if (!file)

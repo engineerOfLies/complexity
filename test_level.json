@@ -1,15 +1,50 @@
 {
 "level":{
     "timespan": 200,
-    "obstacleList":[
+    "objectTypes":[
         {
-            "timestamp" : 10,
-            "position" : [0,1,0],
+            "name":"gap",
+            "collectable": 0,
+            "goodActions":["jump"],
+            "badActions":["duck"],
+            "scoreAdjust":-10,
+            "avoidanceAdjust":0,
+            "timeAdjust":-10
+        },
+        {
+            "name":"vent",
+            "collectable": 0,
+            "goodActions":["jump"],
+            "badActions":["duck"],
+            "scoreAdjust":-10,
+            "avoidanceAdjust":0,
+            "timeAdjust":-5
+        },
+        {
+            "name":"overhead",
             "collectable": 0,
             "goodActions":["duck"],
             "badActions":["jump"],
             "scoreAdjust":-10,
-            "avoidanceAdjust":0
+            "avoidanceAdjust":0,
+            "timeAdjust":-5
+        },
+        {
+            "name":"gap",
+            "collectable": 0,
+            "goodActions":["jump"],
+            "badActions":["duck"],
+            "scoreAdjust":-10,
+            "avoidanceAdjust":0,
+            "timeAdjust":-10
+        }
+
+    ],
+    "objectList":[
+        {
+            "name":"gap",
+            "timestamp" : 10,
+            "position" : [0,1,0],
         }
     ]
 }
