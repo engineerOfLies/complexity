@@ -1,4 +1,5 @@
 #include "level.h"
+#include "camera.h"
 #include "simple_logger.h"
 #include "simple_json.h"
 #include "level_object.h"
@@ -15,6 +16,7 @@ Level *level_new()
     }
     memset(level,0,sizeof(Level));
     level->objectList = gf2d_list_new();
+    level->roofList = gf2d_list_new();
     return level;
 }
 
@@ -66,6 +68,7 @@ void level_free(Level *level)
 {
     int i,count;
     LevelObject *lo;
+    Roof *roof;
     if (!level)return;
     
     count = gf2d_list_get_count(level->objectList);
@@ -76,7 +79,64 @@ void level_free(Level *level)
         level_object_free(lo);
     }
     gf2d_list_delete(level->objectList);
+    count = gf2d_list_get_count(level->roofList);
+    for (i = 0; i < count; i++)
+    {
+        roof = (Roof*)gf2d_list_get_nth(level->roofList,i);
+        if (!roof)continue;
+        rooftop_free(roof);
+    }
+    gf2d_list_delete(level->roofList);
     free(level);
 }
+
+void level_draw(Level *level,Vector2D offset)
+{
+    int i,count;
+    Roof *roof;
+    count = gf2d_list_get_count(level->roofList);
+    for (i = 0; i < count; i++)
+    {
+        roof = (Roof*)gf2d_list_get_nth(level->roofList,i);
+        if (!roof)continue;
+        if (camera_rect_on_screen(rooftop_get_bounds(roof)))
+        {
+            rooftop_draw(roof,offset);
+        }
+    }
+}
+
+Level *level_generate(Uint32 count)
+{
+    int i;
+    Level *level;
+    level = level_new();
+    if (!level)return NULL;
+    
+    for (i = 0; i < count; i++)
+    {
+        level->roofList = gf2d_list_append(level->roofList,rooftop_new_data(vector2d(300,i * -832),"images/backgrounds/rooftop1.png",vector2d(600,800)));
+    }
+    
+    return level;
+}
+
+float level_get_lane_x(Uint8 lane)
+{
+    if (lane == 0)
+    {
+        return 400;
+    }
+    if (lane == 1)
+    {
+        return 600;
+    }
+    if (lane == 2)
+    {
+        return 800;
+    }
+    return 600;
+}
+
 
 /*eol@eof*/
