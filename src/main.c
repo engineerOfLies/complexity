@@ -13,6 +13,7 @@
 #include "rooftop.h"
 #include "windows_common.h"
 #include "world_obstacles.h"
+#include "world.h"
 
 static int _done = 0;
 static Window *_quit = NULL;
@@ -33,6 +34,7 @@ int main(int argc, char *argv[])
     Entity *player;
     init_logger("./complex.log");
     List *olist;
+    World *world;
     
     slog("---====BEGIN %s====---",argv[0]);
     
@@ -62,6 +64,7 @@ int main(int argc, char *argv[])
     player_set_lane(player,1);
     
     olist = world_obstacle_load("calibrations/obstacle_list.json");
+    world = world_from_file("calibrations/test_world.json");
     while (!_done)
     {
         gf2d_input_update();
@@ -85,6 +88,7 @@ int main(int argc, char *argv[])
         }
 
     }
+    world_free(world);
     world_obstacle_list_free(olist);
     level_free(level);
     

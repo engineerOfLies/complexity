@@ -17,15 +17,15 @@ enum FramePositions
 
 typedef struct
 {
-    Uint32 timeIndex;       /**<milliseconds from level session start*/
-    Uint8   collectibles[6];/**<contents of collectibles slot, index by the above enum*/
-    Uint8   obstacles[3];   /**<contents of the obstacles slot, index by the bottom */
+    Uint32  timeIndex;      /**<milliseconds from level session start*/
+    Uint32  collectibles[6];/**<contents of collectibles slot, index by the above enum*/
+    Uint32  obstacles[3];   /**<contents of the obstacles slot, index by the bottom */
 }WorldFrame;
 
 typedef struct
 {
-    List *frame;          /**<A stream of moments that make up the game world*/
-    float scroll_speed;     /**<how fast the world moves at the player.  This affects reaction time windows*/
+    List *frames;           /**<A stream of moments that make up the game world*/
+    float scrollSpeed;     /**<how fast the world moves at the player.  This affects reaction time windows*/
 }World;
 
 /**
@@ -51,5 +51,17 @@ World *world_from_rooftop_list(List *rooftops);
  * @brief load a JSON file with world data
  */
 World *world_from_file(const char *filename);
+
+/**
+ * @brief free a world frame
+ * @param wf the frame to free
+ */
+void world_frame_free(WorldFrame *wf);
+
+/**
+ * @brief allocate and initlialize a new world frame
+ * @returns NULL on error or a new, zeroed WorldFrame
+ */
+WorldFrame *world_frame_new();
 
 #endif
