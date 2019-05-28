@@ -3,6 +3,13 @@
 
 #include "gf2d_entity.h"
 
+enum PlayerWorldStates
+{
+        PWS_Idle = 1,
+        PWS_Jump = 2,
+        PWS_Duck = 3
+};
+
 Entity *player_new(Vector2D position);
 void player_set_lane(Entity *player,Uint8 lane);
 
