@@ -7,7 +7,7 @@ enum PlayerWorldStates
 {
         PWS_Idle = 1,
         PWS_Jump = 2,
-        PWS_Duck = 3
+        PWS_Duck = 4
 };
 
 Entity *player_new(Vector2D position);

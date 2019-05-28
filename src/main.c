@@ -12,6 +12,7 @@
 #include "gf2d_actor.h"
 #include "rooftop.h"
 #include "windows_common.h"
+#include "world_obstacles.h"
 
 static int _done = 0;
 static Window *_quit = NULL;
@@ -31,6 +32,7 @@ int main(int argc, char *argv[])
     Level *level;
     Entity *player;
     init_logger("./complex.log");
+    List *olist;
     
     slog("---====BEGIN %s====---",argv[0]);
     
@@ -58,6 +60,8 @@ int main(int argc, char *argv[])
     player = player_new(vector2d(600,600));
     player->velocity.y = -3;
     player_set_lane(player,1);
+    
+    olist = world_obstacle_load("calibrations/obstacle_list.json");
     while (!_done)
     {
         gf2d_input_update();
@@ -81,7 +85,7 @@ int main(int argc, char *argv[])
         }
 
     }
-    
+    world_obstacle_list_free(olist);
     level_free(level);
     
     slog("---====END %s====---",argv[0]);

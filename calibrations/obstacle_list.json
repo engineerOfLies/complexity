@@ -1,0 +1,24 @@
+{
+    "obstacle_list":[
+        {
+            "name":"gap",
+            "index":1,
+            "collides":5
+        },
+        {
+            "name":"powerlines",
+            "index":2,
+            "collides":3
+        },
+        {
+            "name":"wall",
+            "index":3,
+            "collides":7
+        },
+        {
+            "name":"hurdle",
+            "index":4,
+            "collides":6
+        }
+    ]
+}
