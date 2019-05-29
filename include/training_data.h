@@ -7,14 +7,19 @@
 typedef struct
 {
     Uint32      timeIndex;          /**<milliseconds since the session began*/
-    Uint8       playerPostion;      /**<which lane the player is in*/
-    List        worldFrame;         /**<obstacles facing this time frame*/
+    Uint8       playerPosition;     /**<which lane the player is in*/
     TextLine    actionTaken;        /**<name of action taken by the test run*/
 }Moment; 
 
 typedef struct
 {
-    List data;          /**<list of moments and actions taken*/
+    List   *data;                   /**<list of moments and actions taken*/
+    Uint32  sessionLength;
+    Uint32  obstaclesAvoided;
+    Uint32  collectablesObtained;
+    Uint32  rawScore;
+    Uint32  displayScore;
+    Uint32  trialCount;
 }TrainingData;
 
 /**

@@ -6,9 +6,17 @@
 #include "world.h"
 #include "training_data.h"
 
+typedef struct
+{
+    TextLine name;
+    float    value;
+    float    weight;
+}CMetric;
+
 typedef struct ReBot_s
 {
-    List calibrations;      /**<tuples of calibrations and weights*/
+    List *calibrations;      /**<tuples of calibrations and weights*/
+    TrainingData *tdata;    /**<pointer to training data for validation*/
 }ReBot;
 
 /**
@@ -41,6 +49,8 @@ void rebot_save(ReBot *bot, const char *filename);
  * @brief get the next action to take given the current state of the world
  */
 const char *rebot_get_next_action(ReBot *bot, World *world, Uint32 w_position, TrainingData *dataset);
+
+CMetric *cmetric_new();
 
 
 #endif
