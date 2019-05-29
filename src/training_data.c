@@ -106,12 +106,46 @@ TrainingData *training_load(const char *filename)
     return data;
 }
 
-Moment *training_get_moment_by_time(TrainingData *dataset,Uint32 target,Uint32 ignore);
+Moment *training_get_moment_by_time(TrainingData *dataset,Uint32 target,Uint32 ignore)
+{
+    int count,n;
+    Moment *moment;
+    if (!dataset)return NULL;
+    count = gf2d_list_get_count(dataset->data);
+    for (n = 0; n < count; n++)
+    {
+        moment = gf2d_list_get_nth(dataset->data,n);
+        if (!moment)continue;
+        if (moment->timeIndex == ignore)continue;
+        if (moment->timeIndex >= target)return moment;
+    }
+    return NULL;
+}
 
-Moment *training_get_moment_by_similar_moment(TrainingData *dataset,Moment *moment,Sint64 timeThreshold);
+Moment *training_get_moment_by_similar_moment(TrainingData *dataset,Moment *moment,Sint64 timeThreshold)
+{
+    if (!dataset)return NULL;
+    if (!moment)return NULL;
+    //TODO
+    return NULL;
+}
 
 Moment *training_get_moment_by_similar_moment_frame(TrainingData *dataset,List *momentframe,Sint64 timeThreshold,Uint8 matchBest);
 
-Moment *training_get_next(TrainingData *dataset,Moment *last);
+Moment *training_get_next(TrainingData *dataset,Moment *last)
+{
+    int count,n;
+    if (!dataset)return NULL;
+    if (!last)return gf2d_list_get_nth(dataset->data,0);
+    count = gf2d_list_get_count(dataset->data);
+    for (n = 0; n < count; n++)
+    {
+        if (gf2d_list_get_nth(dataset->data,n) == (void*)last)
+        {
+            return gf2d_list_get_nth(dataset->data,n+1);
+        }
+    }
+    return NULL;
+}
 
 /*eol@eof*/
