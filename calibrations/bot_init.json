@@ -27,6 +27,16 @@
             "weight":1
         },
         {
+            "name":"avoidance",
+            "value":10,
+            "weight":1
+        },
+        {
+            "name":"collection",
+            "value":10,
+            "weight":1
+        },
+        {
             "name":"error",
             "value":10,
             "weight":1

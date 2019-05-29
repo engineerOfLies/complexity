@@ -46,11 +46,11 @@ Moment *training_get_moment_by_time(TrainingData *dataset,Uint32 target,Uint32 i
 /**
  * @brief search the dataset for a similar moment to a search one.
  * @param dataset the set to search
- * @param moment the sample moment to search by.  ActionTaken is not required
- * @param timeThreshold a time range to match on.  -1 will ignore time in making a match
+ * @param world the world associated with the data set
+ * @param targetFrame the current situtation being evaluated.  For the current world this is supported on.
  * @returns NULL on error or no matches found, a pointer to a moment otherwise
  */
-Moment *training_get_moment_by_similar_moment(TrainingData *dataset,Moment *moment,Sint64 timeThreshold);
+Moment *training_get_moment_by_similar_moment(TrainingData *dataset,World *world, WorldFrame *targetFrame)
 
 /**
  * @brief search the dataset foa similar sequence of moments

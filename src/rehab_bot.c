@@ -78,7 +78,20 @@ ReBot *rebot_load(const char *filename)
 
 
 void rebot_save(ReBot *bot, const char *filename);
-const char *rebot_get_next_action(ReBot *bot, World *world, Uint32 w_position, TrainingData *dataset);
+const char *rebot_get_next_action(ReBot *bot, World *world, Uint32 w_position, TrainingData *dataset)
+{
+    /*
+     World provided is the world doing work on.
+     filter potential actions by world state (ie: cannot move left in the left lane, or right in the right lane.
+     for each bot metric
+        populate a weight for one of the potential actions
+     Pick the action with the highest score
+     
+     Check
+     
+     */
+    return NULL;
+}
 
 CMetric *cmetric_new()
 {

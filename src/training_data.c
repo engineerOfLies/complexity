@@ -122,11 +122,18 @@ Moment *training_get_moment_by_time(TrainingData *dataset,Uint32 target,Uint32 i
     return NULL;
 }
 
-Moment *training_get_moment_by_similar_moment(TrainingData *dataset,Moment *moment,Sint64 timeThreshold)
+Moment *training_get_moment_by_similar_moment(TrainingData *dataset,WorldFrame *targetFrame,Sint64 timeThreshold)
 {
+    int count,n;
+    WorldFrame *frame;
     if (!dataset)return NULL;
     if (!moment)return NULL;
-    //TODO
+
+    /*
+     for each moment in trainind data
+         for each criteria check if there is a match with target frame state.  create score for the frame
+             return highest scored moment
+     */
     return NULL;
 }
 
