@@ -1,7 +1,51 @@
-#include "world.h"
+#include <stdlib.h>
 #include "simple_json.h"
 #include "simple_logger.h"
-#include <stdlib.h>
+#include "world.h"
+
+WorldFrame *world_frame_get_by_time(World *world, Uint32 timeIndex, Uint32 threshold, Uint32 ignore)
+{
+    WorldFrame *wf = NULL;
+    int count,n;
+    if (!world)return NULL;
+    count = gf2d_list_get_count(world->frames);
+    for (n = 0; n < count;n++)
+    {
+        wf = gf2d_list_get_nth(world->frames,n);
+        if (!wf)continue;
+        if (wf->timeIndex == ignore)continue;
+        if ((wf->timeIndex >= timeIndex - threshold)&&(wf->timeIndex <= timeIndex + threshold))return wf;
+    }
+    return NULL;
+}
+
+float world_frame_compare(WorldFrame *a, WorldFrame *b)
+{
+    float numerator = 0, denominator;
+    int i;
+    if ((!a)||(!b))
+    {
+        slog("missing world frame to compare");
+        return 0;
+    }
+    denominator = 9.0;
+    for (i = 0; i < 3;i++)
+    {
+        if (a->obstacles[i] == b->obstacles[i])
+        {
+            numerator++;
+        }
+    }
+    for (i = 0; i < 6;i++)
+    {
+        if (a->collectibles[i] == b->collectibles[i])
+        {
+            numerator++;
+        }
+    }
+    slog("comparing time index %i to index %i and found %f common elements with %f similarity",a->timeIndex,b->timeIndex,numerator, numerator/denominator);
+    return numerator/denominator;
+}
 
 void world_free(World *world)
 {
@@ -134,8 +178,7 @@ World *world_from_file(const char *filename)
                 sj_array_get_nth(
                     sj_object_get_value(item,"collectibles"),
                                         i),
-                    &tempi);
-            wf->collectibles[i] = (Uint32)tempi;
+                    &wf->collectibles[i]);
         }
         for (i = 0; i < 3;i++)
         {
@@ -143,8 +186,7 @@ World *world_from_file(const char *filename)
                 sj_array_get_nth(
                     sj_object_get_value(item,"obstacles"),
                                         i),
-                    &tempi);
-            wf->obstacles[i] = (Uint32)tempi;
+                    &wf->obstacles[i]);
         }
         world->frames = gf2d_list_append(world->frames,wf);
     }

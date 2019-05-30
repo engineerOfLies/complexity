@@ -44,8 +44,8 @@
         },
         {
             "timeIndex":9500,
-            "collecibles":[0,1,0,0,0,0],
-            "obstacles":[1,1,1]
+            "collecibles":[1,0,0,0,0,0],
+            "obstacles":[0,1,1]
         },
         {
             "timeIndex":10000,

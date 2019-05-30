@@ -18,8 +18,8 @@ enum FramePositions
 typedef struct
 {
     Uint32  timeIndex;      /**<milliseconds from level session start*/
-    Uint32  collectibles[6];/**<contents of collectibles slot, index by the above enum*/
-    Uint32  obstacles[3];   /**<contents of the obstacles slot, index by the bottom */
+    int     collectibles[6];/**<contents of collectibles slot, index by the above enum*/
+    int     obstacles[3];   /**<contents of the obstacles slot, index by the bottom */
 }WorldFrame;
 
 typedef struct
@@ -63,5 +63,24 @@ void world_frame_free(WorldFrame *wf);
  * @returns NULL on error or a new, zeroed WorldFrame
  */
 WorldFrame *world_frame_new();
+
+/**
+ * @brief compare two world frames for similarity
+ * @param a one frame
+ * @param b another frame
+ * @returns 1 if identical (excluding time stamp), 0 if no similarity, something in between for some level of similarity
+ */
+float world_frame_compare(WorldFrame *a, WorldFrame *b);
+
+/**
+ * @brief search for the nearest world frame by time index
+ * @param world the world to search through
+ * @param timeIndex the search target
+ * @param threshold the +/- range from target that can yield a result
+ * @note if threshold is too high, you may end up with infinite loops!
+ * @param ignore  ignore this time index.
+ * @returns NULL on error or no results found, a world frame otherwise
+ */
+WorldFrame *world_frame_get_by_time(World *world, Uint32 timeIndex, Uint32 threshold, Uint32 ignore);
 
 #endif

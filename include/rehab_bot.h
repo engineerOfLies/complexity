@@ -3,8 +3,8 @@
 
 #include "gf2d_list.h"
 #include "gf2d_text.h"
-#include "world.h"
 #include "training_data.h"
+#include "world.h"
 
 typedef struct
 {

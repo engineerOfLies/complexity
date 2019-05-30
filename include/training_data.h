@@ -3,17 +3,31 @@
 
 #include "gf2d_list.h"
 #include "gf2d_text.h"
+#include "world.h"
 
 typedef struct
 {
     Uint32      timeIndex;          /**<milliseconds since the session began*/
     Uint8       playerPosition;     /**<which lane the player is in*/
+    Uint8       actionResult;       /**<placeholder for now, Pass / Fail? penalty? score?*/
     TextLine    actionTaken;        /**<name of action taken by the test run*/
 }Moment; 
 
 typedef struct
 {
+    WorldFrame  worldFrame;
+    Moment      moment;
+}ActionFrame;
+
+typedef struct
+{
+    List *relatedFrames;    /**<list of related frames*/
+}AssociatedFrames;
+
+typedef struct
+{
     List   *data;                   /**<list of moments and actions taken*/
+    List   *associatedData;         /**<list of associated frames*/
     Uint32  sessionLength;
     Uint32  obstaclesAvoided;
     Uint32  collectablesObtained;
@@ -35,6 +49,13 @@ void training_free(TrainingData *dataset);
 TrainingData *training_load(const char *filename);
 
 /**
+ * @brief correlate moments with their frame counterpart from the reference world.
+ * @param tdata the training data to correlate
+ * @param world the refernce world that the training data was associated with
+ */
+void training_build_associate_data(TrainingData *tdata,World *world);
+
+/**
  * @brief get a moment of data from the training set, by the target time index
  * @param dataset the set to search
  * @param target the target timeIndex to search for
@@ -42,15 +63,6 @@ TrainingData *training_load(const char *filename);
  * @returns NULL on error, or if the target is not available and the next best would be ignore
  */
 Moment *training_get_moment_by_time(TrainingData *dataset,Uint32 target,Uint32 ignore);
-
-/**
- * @brief search the dataset for a similar moment to a search one.
- * @param dataset the set to search
- * @param world the world associated with the data set
- * @param targetFrame the current situtation being evaluated.  For the current world this is supported on.
- * @returns NULL on error or no matches found, a pointer to a moment otherwise
- */
-Moment *training_get_moment_by_similar_moment(TrainingData *dataset,World *world, WorldFrame *targetFrame)
 
 /**
  * @brief search the dataset foa similar sequence of moments

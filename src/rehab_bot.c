@@ -1,6 +1,6 @@
-#include "rehab_bot.h"
 #include "simple_json.h"
 #include "simple_logger.h"
+#include "rehab_bot.h"
 #include <stdlib.h>
 
 void rebot_free(ReBot *bot)

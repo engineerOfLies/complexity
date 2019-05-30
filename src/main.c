@@ -15,6 +15,7 @@
 #include "world_obstacles.h"
 #include "world.h"
 #include "rehab_bot.h"
+#include "training_data.h"
 
 static int _done = 0;
 static Window *_quit = NULL;
@@ -37,7 +38,8 @@ int main(int argc, char *argv[])
     List *olist;
     World *world;
     ReBot *bot;
-    
+    TrainingData *tdata;
+
     slog("---====BEGIN %s====---",argv[0]);
     
     
@@ -68,6 +70,10 @@ int main(int argc, char *argv[])
     olist = world_obstacle_load("calibrations/obstacle_list.json");
     world = world_from_file("calibrations/test_world.json");
     bot = rebot_load("calibrations/bot_init.json");
+    tdata = training_load("calibrations/training_data_test.json");
+    
+    training_build_associate_data(tdata,world);
+
     while (!_done)
     {
         gf2d_input_update();

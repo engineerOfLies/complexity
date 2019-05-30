@@ -3,6 +3,151 @@
 #include "simple_logger.h"
 #include <stdlib.h>
 
+
+/**
+ * build training database consisting of a set of moments, all with the same or similar setups
+ * Build a moment association list (list of lists)
+ * For each moment check if it matches an existing moment, if so, then add it to the associated list
+ * else append it to a new entry
+ */
+
+ActionFrame *action_frame_new()
+{
+    ActionFrame *af;
+    af = (ActionFrame*)malloc(sizeof(ActionFrame));
+    if (!af)
+    {
+        slog("failed to allocate ActionFrame");
+        return NULL;
+    }
+    memset(af,0,sizeof(ActionFrame));
+    return af;
+}
+
+void associated_frames_free(AssociatedFrames *af)
+{
+    int c,i;
+    ActionFrame *action;
+    if (!af)return;
+    c = gf2d_list_get_count(af->relatedFrames);
+    for (i = 0; i < c;i++)
+    {
+        action = gf2d_list_get_nth(af->relatedFrames,i);
+        if (!action)continue;
+        free(action);
+    }
+    gf2d_list_delete(af->relatedFrames);
+}
+
+AssociatedFrames *associated_frames_new()
+{
+    AssociatedFrames *af;
+    af = (AssociatedFrames*)malloc(sizeof(AssociatedFrames));
+    if (!af)
+    {
+        slog("failed to allocate AssociatedFrames");
+        return NULL;
+    }
+    memset(af,0,sizeof(AssociatedFrames));
+    af->relatedFrames = gf2d_list_new();
+    return af;
+}
+
+ActionFrame *action_frame_build(Moment *moment, WorldFrame *wf)
+{
+    ActionFrame *af = NULL;
+    if ((!moment) || (!wf))return NULL;
+    
+    af = action_frame_new();
+    if (!af)return NULL;
+    
+    memcpy(&af->moment,moment,sizeof(Moment));
+    memcpy(&af->worldFrame,wf,sizeof(WorldFrame));
+    return af;
+}
+
+//TODO; expand this to include a variable sized window of future events
+
+AssociatedFrames *training_associated_data_get_similar(List *associatedData,WorldFrame *wf,float threshold)
+{
+    int count,n;
+    int fcount,i;
+    AssociatedFrames *af;
+    ActionFrame *action;
+    if ((!associatedData)||(!wf))return NULL;
+    count = gf2d_list_get_count(associatedData);
+    for (n = 0; n < count; n++)
+    {
+        af = gf2d_list_get_nth(associatedData,n);
+        if (!af)continue;
+        fcount = gf2d_list_get_count(af->relatedFrames);
+        for (i = 0; i < fcount; i++)
+        {
+            action = gf2d_list_get_nth(af->relatedFrames,i);
+            if (!action)continue;
+            if (world_frame_compare(&action->worldFrame, wf) >= threshold)
+            {
+                return af;
+            }
+        }
+    }
+    return NULL;
+}
+
+void training_build_associate_data(TrainingData *tdata,World *world)
+{
+    ActionFrame *af;
+    WorldFrame *wf;
+    AssociatedFrames *associatedFrame;
+    Moment *moment;
+    int count,n;
+    
+    if ((!tdata)||(!world))return;
+    
+        /*for each moment....
+         *  get associated world frame
+         *      check if similar frame exists in the associatedData already
+         *          if so, insert action frame there
+         *          else append a new entry with this as the head.
+         * */
+    count = gf2d_list_get_count(tdata->data);
+    for  (n = 0; n < count; n++)
+    {
+        moment = gf2d_list_get_nth(tdata->data,n);
+        if (!moment)continue;
+        slog("building associated list for time index %i",moment->timeIndex);
+        wf = world_frame_get_by_time(world, moment->timeIndex, 1, moment->timeIndex - 1);
+        if (!wf)
+        {
+            slog("failed to find a world frame to match index %i",moment->timeIndex);
+            continue;
+        }
+        slog("found a world frame with index %i",wf->timeIndex);
+        af = action_frame_build(moment, wf);
+        associatedFrame = training_associated_data_get_similar(tdata->associatedData,wf,0.9);
+        if (associatedFrame != NULL)
+        {
+            // insert action frame here
+            associatedFrame->relatedFrames = gf2d_list_append(associatedFrame->relatedFrames,af);
+            slog("found similar action frames, appending to frame");
+        }
+        else
+        {
+            slog("no similar action frames, inserting a new one");
+            //append a new entry with this as the head
+            associatedFrame = associated_frames_new();
+            if (!associatedFrame)
+            {
+                free(af);
+                continue;
+            }
+            associatedFrame->relatedFrames = gf2d_list_append(associatedFrame->relatedFrames,af); 
+            tdata->associatedData = gf2d_list_append(tdata->associatedData,associatedFrame);
+        }
+    }
+    slog("built associated frame data with %i sets of associat moments",gf2d_list_get_count(tdata->associatedData));
+}
+
 Moment *moment_new()
 {
     Moment *data;
@@ -28,12 +173,14 @@ TrainingData *training_new_set()
     }
     memset(data,0,sizeof(TrainingData));
     data->data = gf2d_list_new();
+    data->associatedData = gf2d_list_new();
     return data;
 }
 
 void training_free(TrainingData *dataset)
 {
     Moment *moment;
+    AssociatedFrames *af;
     int count,n;
     if (!dataset)return;
     
@@ -45,6 +192,16 @@ void training_free(TrainingData *dataset)
         free(moment);//TODO change if we make moments more complicated
     }
     gf2d_list_delete(dataset->data);
+
+    count = gf2d_list_get_count(dataset->associatedData);
+    for (n = 0; n < count; n++)
+    {
+        af = gf2d_list_get_nth(dataset->associatedData,n);
+        if (!af)continue;
+        associated_frames_free(af);//TODO change if we make moments more complicated
+    }
+    gf2d_list_delete(dataset->associatedData);
+
     free(dataset);
 }
 
@@ -121,23 +278,6 @@ Moment *training_get_moment_by_time(TrainingData *dataset,Uint32 target,Uint32 i
     }
     return NULL;
 }
-
-Moment *training_get_moment_by_similar_moment(TrainingData *dataset,WorldFrame *targetFrame,Sint64 timeThreshold)
-{
-    int count,n;
-    WorldFrame *frame;
-    if (!dataset)return NULL;
-    if (!moment)return NULL;
-
-    /*
-     for each moment in trainind data
-         for each criteria check if there is a match with target frame state.  create score for the frame
-             return highest scored moment
-     */
-    return NULL;
-}
-
-Moment *training_get_moment_by_similar_moment_frame(TrainingData *dataset,List *momentframe,Sint64 timeThreshold,Uint8 matchBest);
 
 Moment *training_get_next(TrainingData *dataset,Moment *last)
 {
