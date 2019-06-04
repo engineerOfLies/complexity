@@ -23,19 +23,19 @@ enum ActionChoiceS
 ActionChoice actionChoices[]=
 {
     {
-        "idle",0
+        "idle",1
     },
     {
-        "left",0
+        "left",1
     },
     {
-        "right",0
+        "right",1
     },
     {
-        "jump",0
+        "jump",1
     },
     {
-        "duck",0
+        "duck",1
     }  
 };
 
@@ -44,7 +44,7 @@ void action_choices_reset()
     int i;
     for (i = 0; i < AC_MAX; i++)
     {
-        actionChoices[i].weight = 0;
+        actionChoices[i].weight = 1;
     }
 }
 
@@ -53,12 +53,14 @@ const char *action_choice_get_best()
     int i;
     float bestWeight = -1;
     int bestIndex = -1;
+    slog("choice weights:");
     for (i = 0; i < AC_MAX; i++)
     {
-        if (actionChoices[bestIndex].weight > bestWeight)
+        slog("%s : %f",actionChoices[i].name,actionChoices[i].weight);
+        if (actionChoices[i].weight > bestWeight)
         {
             bestIndex = i;
-            bestWeight = actionChoices[bestIndex].weight;
+            bestWeight = actionChoices[i].weight;
         }
     }
     if (bestIndex == -1)return NULL;
@@ -207,6 +209,73 @@ const char *rebot_pick_action(ReBot *bot,Uint8 position, WorldFrame *frame, List
     
     if (position == 0)actionChoices[AC_Left].weight = -1;
     if (position == 2)actionChoices[AC_Right].weight = -1;
+    
+    // check current position
+    slog("current position: %i",position);
+    if ((position > 0) && (frame->obstacles[position -1]))
+    {
+        obstacle = world_obstacle_list_get_by_index(olist, frame->obstacles[position - 1]);
+        if (!obstacle)
+        {
+            slog("failed to find obstacle with index %i",frame->obstacles[position - 1]);
+            return NULL;
+        }
+        if (obstacle->collides & WO_Idle)
+        {// moving to the left would cause a clash
+            metric = cmetric_get_by_name(bot->calibrations,"idle");
+            if (metric)
+            {
+                actionChoices[AC_Idle].weight *= metric->value *metric->weight *avoidance;
+            }
+            metric = cmetric_get_by_name(bot->calibrations,"right");
+            if (metric)
+            {
+                actionChoices[AC_Right].weight *= metric->value *metric->weight *avoidance;
+            }
+            metric = cmetric_get_by_name(bot->calibrations,"jump");
+            if (metric)
+            {
+                actionChoices[AC_Jump].weight *= metric->value *metric->weight *avoidance;
+            }
+            metric = cmetric_get_by_name(bot->calibrations,"duck");
+            if (metric)
+            {
+                actionChoices[AC_Duck].weight *= metric->value *metric->weight *avoidance;
+            }
+        }
+    }
+    if ((position < 2) && (frame->obstacles[position + 1]))
+    {
+        obstacle = world_obstacle_list_get_by_index(olist, frame->obstacles[position + 1]);
+        if (!obstacle)
+        {
+            slog("failed to find obstacle with index %i",frame->obstacles[position + 1]);
+            return NULL;
+        }
+        if (obstacle->collides & WO_Idle)
+        {// moving to the left would cause a clash
+            metric = cmetric_get_by_name(bot->calibrations,"idle");
+            if (metric)
+            {
+                actionChoices[AC_Idle].weight *= metric->value *metric->weight *avoidance;
+            }
+            metric = cmetric_get_by_name(bot->calibrations,"left");
+            if (metric)
+            {
+                actionChoices[AC_Left].weight *= metric->value *metric->weight *avoidance;
+            }
+            metric = cmetric_get_by_name(bot->calibrations,"jump");
+            if (metric)
+            {
+                actionChoices[AC_Jump].weight *= metric->value *metric->weight *avoidance;
+            }
+            metric = cmetric_get_by_name(bot->calibrations,"duck");
+            if (metric)
+            {
+                actionChoices[AC_Duck].weight *= metric->value *metric->weight *avoidance;
+            }
+        }
+    }
     if (frame->obstacles[position])
     {
         obstacle = world_obstacle_list_get_by_index(olist, frame->obstacles[position]);
