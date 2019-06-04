@@ -1,7 +1,19 @@
 #include <stdlib.h>
 #include "simple_json.h"
 #include "simple_logger.h"
+#include "world_obstacles.h"
 #include "world.h"
+
+void world_frame_slog(WorldFrame *frame)
+{
+    if (!frame)
+    {
+        slog("no frame provided");
+        return;
+    }
+    slog("obstacles:");
+    slog("%i  %i  %i",frame->obstacles[0],frame->obstacles[1],frame->obstacles[2]);
+}
 
 WorldFrame *world_frame_get_by_time(World *world, Uint32 timeIndex, Uint32 threshold, Uint32 ignore)
 {
@@ -43,7 +55,6 @@ float world_frame_compare(WorldFrame *a, WorldFrame *b)
             numerator++;
         }
     }
-    slog("comparing time index %i to index %i and found %f common elements with %f similarity",a->timeIndex,b->timeIndex,numerator, numerator/denominator);
     return numerator/denominator;
 }
 
@@ -60,6 +71,7 @@ void world_free(World *world)
         world_frame_free(wf);
     }
     gf2d_list_delete(world->frames);
+    world_obstacle_list_free(world->obstacleList);
     free(world);
 }
 
@@ -142,6 +154,7 @@ World *world_from_file(const char *filename)
     SJson *json,*list,*item;
     World *world = NULL;
     WorldFrame *wf = NULL;
+    const char *obstacleListFile = NULL;
     int count, n;
     int i;
     int tempi;
@@ -155,6 +168,8 @@ World *world_from_file(const char *filename)
         sj_free(json);
         return NULL;
     }
+    obstacleListFile = sj_get_string_value(sj_object_get_value(json,"obstacleList"));
+    world->obstacleList = world_obstacle_load(obstacleListFile);
     sj_get_float_value(sj_object_get_value(json,"scrollSpeed"),&world->scrollSpeed);
     list = sj_object_get_value(json,"frames");
     if (!list)

@@ -35,7 +35,6 @@ int main(int argc, char *argv[])
     Level *level;
     Entity *player;
     init_logger("./complex.log");
-    List *olist;
     World *world;
     ReBot *bot;
     TrainingData *tdata;
@@ -67,13 +66,16 @@ int main(int argc, char *argv[])
     player->velocity.y = -3;
     player_set_lane(player,1);
     
-    olist = world_obstacle_load("calibrations/obstacle_list.json");
     world = world_from_file("calibrations/test_world.json");
     bot = rebot_load("calibrations/bot_init.json");
     tdata = training_load("calibrations/training_data_test.json");
     
     training_build_associate_data(tdata,world);
 
+    rebot_assign_training(bot, tdata);
+
+    rebot_calibrate_on_world(bot, world);
+    
     while (!_done)
     {
         gf2d_input_update();
@@ -99,7 +101,6 @@ int main(int argc, char *argv[])
     }
     rebot_free(bot);
     world_free(world);
-    world_obstacle_list_free(olist);
     level_free(level);
     
     slog("---====END %s====---",argv[0]);

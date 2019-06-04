@@ -4,6 +4,12 @@
 #include "gf2d_text.h"
 #include "gf2d_list.h"
 #include "player.h"
+enum WO_COLLISIONS 
+{
+    WO_Idle = 1,
+    WO_Jump = 2,
+    WO_Duck = 4
+};
 
 typedef struct
 {

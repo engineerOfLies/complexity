@@ -24,8 +24,9 @@ typedef struct
 
 typedef struct
 {
+    List *obstacleList;     /**<obstacle definitions for the world*/
     List *frames;           /**<A stream of moments that make up the game world*/
-    float scrollSpeed;     /**<how fast the world moves at the player.  This affects reaction time windows*/
+    float scrollSpeed;      /**<how fast the world moves at the player.  This affects reaction time windows*/
 }World;
 
 /**
@@ -82,5 +83,11 @@ float world_frame_compare(WorldFrame *a, WorldFrame *b);
  * @returns NULL on error or no results found, a world frame otherwise
  */
 WorldFrame *world_frame_get_by_time(World *world, Uint32 timeIndex, Uint32 threshold, Uint32 ignore);
+
+/**
+ * @brief print to logs the state of the frame
+ * @param frame the frame to print
+ */
+void world_frame_slog(WorldFrame *frame);
 
 #endif

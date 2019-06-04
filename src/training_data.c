@@ -115,25 +115,21 @@ void training_build_associate_data(TrainingData *tdata,World *world)
     {
         moment = gf2d_list_get_nth(tdata->data,n);
         if (!moment)continue;
-        slog("building associated list for time index %i",moment->timeIndex);
         wf = world_frame_get_by_time(world, moment->timeIndex, 1, moment->timeIndex - 1);
         if (!wf)
         {
             slog("failed to find a world frame to match index %i",moment->timeIndex);
             continue;
         }
-        slog("found a world frame with index %i",wf->timeIndex);
         af = action_frame_build(moment, wf);
         associatedFrame = training_associated_data_get_similar(tdata->associatedData,wf,0.9);
         if (associatedFrame != NULL)
         {
             // insert action frame here
             associatedFrame->relatedFrames = gf2d_list_append(associatedFrame->relatedFrames,af);
-            slog("found similar action frames, appending to frame");
         }
         else
         {
-            slog("no similar action frames, inserting a new one");
             //append a new entry with this as the head
             associatedFrame = associated_frames_new();
             if (!associatedFrame)
@@ -145,7 +141,7 @@ void training_build_associate_data(TrainingData *tdata,World *world)
             tdata->associatedData = gf2d_list_append(tdata->associatedData,associatedFrame);
         }
     }
-    slog("built associated frame data with %i sets of associat moments",gf2d_list_get_count(tdata->associatedData));
+    slog("built associated frame data with %i sets of associated moments",gf2d_list_get_count(tdata->associatedData));
 }
 
 Moment *moment_new()
