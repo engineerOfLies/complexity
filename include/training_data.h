@@ -19,9 +19,29 @@ typedef struct
     Moment      moment;
 }ActionFrame;
 
+/**
+ * @brief used for calculating weights to make a choice
+ */
+enum ActionChoiceS
+{
+    AC_Idle  = 0,
+    AC_Left  = 1,
+    AC_Right = 2,
+    AC_Jump  = 3,
+    AC_Duck  = 4,
+    AC_MAX   = 5
+};
+
 typedef struct
 {
-    List *relatedFrames;    /**<list of related frames*/
+    TextLine    name;
+    float       weight;
+}ActionChoice;
+
+typedef struct
+{
+    List *relatedFrames;                /**<list of related frames*/
+    ActionChoice actionChoices[AC_MAX]; /**<counts for what choice the training data made given the situation*/
 }AssociatedFrames;
 
 typedef struct
@@ -56,6 +76,14 @@ TrainingData *training_load(const char *filename);
 void training_build_associate_data(TrainingData *tdata,World *world);
 
 /**
+ * @brief search the training data for a similar situation as the frame provided
+ * @param tdata the training data to search
+ * @param frame the reference frame to search for
+ * @return NULL on error, or the associated frame data
+ */
+AssociatedFrames *training_data_get_similar_associate_frame(TrainingData *tdata,WorldFrame *frame);
+
+/**
  * @brief get a moment of data from the training set, by the target time index
  * @param dataset the set to search
  * @param target the target timeIndex to search for
@@ -82,4 +110,23 @@ Moment *training_get_moment_by_similar_moment_frame(TrainingData *dataset,List *
  */
 Moment *training_get_next(TrainingData *dataset,Moment *last);
 
+/**
+ * @brief Reset the weights for an action choice list
+ * @param actionChoices the list of actions to reset
+ */
+void action_choices_reset(ActionChoice *actionChoices);
+
+/**
+ * @brief grab the name of the choice with the highest weight
+ * @param actionChoices the choices list to search
+ * @return NULL on error, the name of the best choice otherwise
+ */
+const char *action_choice_get_best(ActionChoice *actionChoices);
+
+/**@brief get a pointer to the weight for a given action choice by name
+ * @param actionChoices the set of action choices to search
+ * @param name the name to search for
+ * @return NULL on error, a pointer to the weight otherwise
+ */
+float *action_choice_get_weight_by_name(ActionChoice *actionChoices, const char *name);
 #endif

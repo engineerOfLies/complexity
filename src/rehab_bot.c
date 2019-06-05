@@ -4,68 +4,6 @@
 #include "world_obstacles.h"
 #include "rehab_bot.h"
 
-typedef struct
-{
-    TextLine    name;
-    float       weight;
-}ActionChoice;
-
-enum ActionChoiceS
-{
-    AC_Idle  = 0,
-    AC_Left  = 1,
-    AC_Right = 2,
-    AC_Jump  = 3,
-    AC_Duck  = 4,
-    AC_MAX   = 5
-};
-
-ActionChoice actionChoices[]=
-{
-    {
-        "idle",1
-    },
-    {
-        "left",1
-    },
-    {
-        "right",1
-    },
-    {
-        "jump",1
-    },
-    {
-        "duck",1
-    }  
-};
-
-void action_choices_reset()
-{
-    int i;
-    for (i = 0; i < AC_MAX; i++)
-    {
-        actionChoices[i].weight = 1;
-    }
-}
-
-const char *action_choice_get_best()
-{
-    int i;
-    float bestWeight = -1;
-    int bestIndex = -1;
-    slog("choice weights:");
-    for (i = 0; i < AC_MAX; i++)
-    {
-        slog("%s : %f",actionChoices[i].name,actionChoices[i].weight);
-        if (actionChoices[i].weight > bestWeight)
-        {
-            bestIndex = i;
-            bestWeight = actionChoices[i].weight;
-        }
-    }
-    if (bestIndex == -1)return NULL;
-    return actionChoices[bestIndex].name;
-}
 
 void rebot_free(ReBot *bot)
 {
@@ -188,6 +126,7 @@ const char *rebot_pick_action(ReBot *bot,Uint8 position, WorldFrame *frame, List
     CMetric *metric = NULL;
     float avoidance = 1;
     float collection = 1;
+    static ActionChoice actionChoices[AC_MAX];
     if ((!bot)||(!frame))
     {
         slog("missing data");
@@ -198,7 +137,7 @@ const char *rebot_pick_action(ReBot *bot,Uint8 position, WorldFrame *frame, List
         slog("player position out of range");
         return NULL;
     }
-    action_choices_reset();
+    action_choices_reset(actionChoices);
     /*
      * make list of possible actions, paired with a weight.
      * Assign -1 is the action if not possible
@@ -358,7 +297,43 @@ const char *rebot_pick_action(ReBot *bot,Uint8 position, WorldFrame *frame, List
             }
         }
     }
-    return action_choice_get_best();
+    return action_choice_get_best(actionChoices);
+}
+
+/* find assciated set of data
+ * check what the top option was, if we matched, return done
+ *  if we failed, check the weight of what we chose and calculate an error (strength of the weight for the correct action as the factor to reduce the weight of the chosen action and to increase the weight of the correct action.
+*/  
+
+float rebot_calculate_error(ReBot *bot,const char *action,WorldFrame *frame)
+{
+    AssociatedFrames *associatedFrame = NULL;
+    const char *bestAction = NULL;
+    int i;
+    float total = 0;
+    float *weight = NULL;
+    if ((!bot)||(!frame)||(!action))
+    {
+        slog("missing calibrate bot");
+        return -1;
+    }
+    associatedFrame = training_data_get_similar_associate_frame(bot->tdata,frame);
+    if (!associatedFrame)return 0;
+    bestAction = action_choice_get_best(associatedFrame->actionChoices);
+    if (!bestAction)return -1;
+    if (gf2d_line_cmp(bestAction,action)==0)
+    {
+        // match!
+        return 0;
+    }
+    for (i = 0; i < AC_MAX; i++)
+    {
+        total += associatedFrame->actionChoices[0].weight;
+    }
+    if (total == 0) return -1;
+    weight = action_choice_get_weight_by_name(associatedFrame->actionChoices, bestAction);
+    if (!weight)return -1;
+    return *weight/total;
 }
 
 /**
@@ -372,9 +347,10 @@ void rebot_calibrate_on_world(ReBot *bot, World *world)
     int c,n;
     const char *action = NULL;
     Uint8 position = 1;
+    float error = 0;
     if ((!bot)||(!world))
     {
-        slog("missing calibrate bot");
+        slog("missing data to calibrate bot");
         return;
     }
     /*
@@ -392,8 +368,27 @@ void rebot_calibrate_on_world(ReBot *bot, World *world)
         world_frame_slog(frame);
         action = rebot_pick_action(bot,position, frame, world->obstacleList);
         slog("Chosen action : %s",action);
+        
+        //update simulated state
         if (gf2d_line_cmp(action,"left")==0)position = MAX(0,position -1);
         if (gf2d_line_cmp(action,"right")==0)position = MIN(2,position +1);
+        
+        //evaluate chosen action based on similar courses of action
+        error = rebot_calculate_error(bot,action,frame);
+        {
+            if (error < 0)
+            {
+                slog("error calculating error");
+            }
+            else if (error == 0)
+            {
+                slog("choice made matches training data");
+            }
+            else
+            {
+                slog("choice not great, error value: %f",error);
+            }
+        }
     }
 }
 

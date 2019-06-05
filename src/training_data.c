@@ -3,6 +3,67 @@
 #include "simple_logger.h"
 #include <stdlib.h>
 
+void action_choices_reset(ActionChoice *actionChoices)
+{
+    static ActionChoice baseActionChoices[]=
+    {
+        {
+            "idle",1
+        },
+        {
+            "left",1
+        },
+        {
+            "right",1
+        },
+        {
+            "jump",1
+        },
+        {
+            "duck",1
+        }  
+    };
+
+    if (!actionChoices)return;
+    memcpy(actionChoices,baseActionChoices,sizeof(ActionChoice)*AC_MAX);
+}
+
+const char *action_choice_get_best(ActionChoice *actionChoices)
+{
+    int i;
+    float bestWeight = -1;
+    int bestIndex = -1;
+    slog("choice weights:");
+    for (i = 0; i < AC_MAX; i++)
+    {
+        slog("%s : %f",actionChoices[i].name,actionChoices[i].weight);
+        if (actionChoices[i].weight > bestWeight)
+        {
+            bestIndex = i;
+            bestWeight = actionChoices[i].weight;
+        }
+    }
+    if (bestIndex == -1)return NULL;
+    return actionChoices[bestIndex].name;
+}
+
+float *action_choice_get_weight_by_name(ActionChoice *actionChoices, const char *name)
+{
+    int i;
+    if ((!actionChoices)||(!name))
+    {
+        slog("Missing data");
+        return NULL;
+    }
+    for (i = 0; i < AC_MAX; i++)
+    {
+        if (gf2d_line_cmp(actionChoices[i].name,name) == 0)
+        {
+            return &actionChoices[i].weight;
+        }
+    }
+    return NULL;
+}
 
 /**
  * build training database consisting of a set of moments, all with the same or similar setups
@@ -37,6 +98,35 @@ void associated_frames_free(AssociatedFrames *af)
         free(action);
     }
     gf2d_list_delete(af->relatedFrames);
+}
+
+AssociatedFrames *training_data_get_similar_associate_frame(TrainingData *tdata,WorldFrame *frame)
+{
+    AssociatedFrames *aFrame = NULL;
+    ActionFrame *actionFrame = NULL;
+    int c,n,i,ci;
+    if ((!tdata)||(!frame))
+    {
+        slog("missing data to find associatedFrames");
+        return NULL;
+    }
+    c = gf2d_list_get_count(tdata->associatedData);
+    for (n = 0; n < c; n++)
+    {
+        aFrame = gf2d_list_get_nth(tdata->associatedData,n);
+        if (!aFrame)continue;
+        ci = gf2d_list_get_count(aFrame->relatedFrames);
+        for (i = 0; i < ci;i++)
+        {
+            actionFrame = gf2d_list_get_nth(aFrame->relatedFrames,i);
+            if (!actionFrame)continue;
+            if (world_frame_compare(&actionFrame->worldFrame, frame))
+            {
+                return aFrame;
+            }
+        }
+    }
+    return NULL;
 }
 
 AssociatedFrames *associated_frames_new()
@@ -94,6 +184,24 @@ AssociatedFrames *training_associated_data_get_similar(List *associatedData,Worl
     return NULL;
 }
 
+void training_associated_data_slog(TrainingData *tdata)
+{
+    int count,n,i;
+    AssociatedFrames *frame;
+    if (!tdata)return;
+    count = gf2d_list_get_count(tdata->associatedData);
+    for (n = 0; n < count; n++)
+    {
+        frame = gf2d_list_get_nth(tdata->associatedData,n);
+        if (!frame)continue;
+        slog("associate frame %i choice weights:",n);
+        for (i = 0; i < AC_MAX; i++)
+        {
+            slog("%s : %f",frame->actionChoices[i].name,frame->actionChoices[i].weight);
+        }
+    }
+}
+
 void training_build_associate_data(TrainingData *tdata,World *world)
 {
     ActionFrame *af;
@@ -101,6 +209,7 @@ void training_build_associate_data(TrainingData *tdata,World *world)
     AssociatedFrames *associatedFrame;
     Moment *moment;
     int count,n;
+    float *weight;
     
     if ((!tdata)||(!world))return;
     
@@ -126,6 +235,8 @@ void training_build_associate_data(TrainingData *tdata,World *world)
         if (associatedFrame != NULL)
         {
             // insert action frame here
+            weight = action_choice_get_weight_by_name(associatedFrame->actionChoices, moment->actionTaken);
+            if (weight)*weight += 1;
             associatedFrame->relatedFrames = gf2d_list_append(associatedFrame->relatedFrames,af);
         }
         else
@@ -137,11 +248,16 @@ void training_build_associate_data(TrainingData *tdata,World *world)
                 free(af);
                 continue;
             }
+            action_choices_reset(associatedFrame->actionChoices);
+            weight = action_choice_get_weight_by_name(associatedFrame->actionChoices, moment->actionTaken);
+            if (weight)*weight += 1;
+            
             associatedFrame->relatedFrames = gf2d_list_append(associatedFrame->relatedFrames,af); 
             tdata->associatedData = gf2d_list_append(tdata->associatedData,associatedFrame);
         }
     }
     slog("built associated frame data with %i sets of associated moments",gf2d_list_get_count(tdata->associatedData));
+    training_associated_data_slog(tdata);
 }
 
 Moment *moment_new()

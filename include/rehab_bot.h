@@ -6,6 +6,7 @@
 #include "training_data.h"
 #include "world.h"
 
+
 typedef struct
 {
     TextLine name;
