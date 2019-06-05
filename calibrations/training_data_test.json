@@ -10,22 +10,22 @@
         {
             "timeIndex":500,
             "playerPosition":0,
-            "actionTaken":"right"
+            "actionTaken":"idle"
         },
         {
             "timeIndex":1000,
             "playerPosition":1,
-            "actionTaken":"none"
+            "actionTaken":"idle"
         },
         {
             "timeIndex":1500,
             "playerPosition":1,
-            "actionTaken":"none"
+            "actionTaken":"idle"
         },
         {
             "timeIndex":2000,
             "playerPosition":1,
-            "actionTaken":"none"
+            "actionTaken":"idle"
         },
         {
             "timeIndex":4000,

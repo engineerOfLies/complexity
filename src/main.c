@@ -37,6 +37,8 @@ int main(int argc, char *argv[])
     init_logger("./complex.log");
     World *world;
     ReBot *bot;
+    int corrections = 0;
+    int i = 0;
     TrainingData *tdata;
 
     slog("---====BEGIN %s====---",argv[0]);
@@ -74,7 +76,16 @@ int main(int argc, char *argv[])
 
     rebot_assign_training(bot, tdata);
 
-    rebot_calibrate_on_world(bot, world);
+    for (i = 0; i < 10;i++)
+    {
+        corrections = rebot_calibrate_on_world(bot, world);
+        slog("made %i corrections",corrections);
+        if (corrections <= 0)
+        {
+            slog("bot calibrated! after %i iterations",i);
+            break;
+        }
+    }
     
     while (!_done)
     {

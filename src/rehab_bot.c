@@ -312,6 +312,8 @@ float rebot_calculate_error(ReBot *bot,const char *action,WorldFrame *frame)
     int i;
     float total = 0;
     float *weight = NULL;
+    float error = 0;
+    CMetric *metric = NULL;
     if ((!bot)||(!frame)||(!action))
     {
         slog("missing calibrate bot");
@@ -333,7 +335,16 @@ float rebot_calculate_error(ReBot *bot,const char *action,WorldFrame *frame)
     if (total == 0) return -1;
     weight = action_choice_get_weight_by_name(associatedFrame->actionChoices, bestAction);
     if (!weight)return -1;
-    return *weight/total;
+    error = *weight/total;
+    // do bot recalibration work
+    
+    metric = cmetric_get_by_name(bot->calibrations,(char *)action);
+    metric->weight -= error;
+
+    metric = cmetric_get_by_name(bot->calibrations,(char *)bestAction);
+    metric->weight += error;
+    
+    return error;
 }
 
 /**
@@ -341,17 +352,18 @@ float rebot_calculate_error(ReBot *bot,const char *action,WorldFrame *frame)
  * This is just roughing out the broad strokes
  * @note instead of the world, make a world similation that keeps track of player position in the world and overall score
  */
-void rebot_calibrate_on_world(ReBot *bot, World *world)
+int rebot_calibrate_on_world(ReBot *bot, World *world)
 {
     WorldFrame *frame;
     int c,n;
     const char *action = NULL;
     Uint8 position = 1;
     float error = 0;
+    int corrections = 0;
     if ((!bot)||(!world))
     {
         slog("missing data to calibrate bot");
-        return;
+        return - 1;
     }
     /*
      * For each frame in the world
@@ -375,21 +387,22 @@ void rebot_calibrate_on_world(ReBot *bot, World *world)
         
         //evaluate chosen action based on similar courses of action
         error = rebot_calculate_error(bot,action,frame);
+        slog("error: %f",error);
+        if (error < 0)
         {
-            if (error < 0)
-            {
-                slog("error calculating error");
-            }
-            else if (error == 0)
-            {
-                slog("choice made matches training data");
-            }
-            else
-            {
-                slog("choice not great, error value: %f",error);
-            }
+            slog("error calculating error");
+        }
+        else if (error == 0)
+        {
+            slog("choice made matches training data");
+        }
+        else
+        {
+            slog("choice not great, error value: %f",error);
+            corrections++;
         }
     }
+    return corrections;
 }
 
 

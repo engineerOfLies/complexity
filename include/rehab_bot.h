@@ -58,8 +58,9 @@ void rebot_assign_training(ReBot *bot, TrainingData *tdata);
  * @note bot should have training data assigned already
  * @param bot the bot to train
  * @param world the world to train the bot on
+ * @returns the number of corrections that were made on this run of the world
  */
-void rebot_calibrate_on_world(ReBot *bot, World *world);
+int rebot_calibrate_on_world(ReBot *bot, World *world);
 
 /**
  * @brief allocate and inilialize a new calibration metric
