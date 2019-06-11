@@ -1,7 +1,7 @@
-#include "training_data.h"
+#include <stdlib.h>
 #include "simple_json.h"
 #include "simple_logger.h"
-#include <stdlib.h>
+#include "training_data.h"
 
 void action_choices_reset(ActionChoice *actionChoices)
 {

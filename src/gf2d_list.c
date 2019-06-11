@@ -1,5 +1,5 @@
-#include "gf2d_list.h"
 #include "simple_logger.h"
+#include "gf2d_list.h"
 
 void gf2d_list_delete(List *list)
 {

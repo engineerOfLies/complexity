@@ -1,11 +1,10 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
-
+#include "simple_logger.h"
 #include "gf2d_graphics.h"
 #include "gf2d_windows.h"
 #include "gf2d_elements.h"
-#include "simple_logger.h"
 
 typedef struct
 {

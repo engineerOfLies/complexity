@@ -1,10 +1,10 @@
-#include "windows_common.h"
+#include "simple_logger.h"
 #include "gf2d_elements.h"
 #include "gf2d_element_label.h"
 #include "gf2d_element_entry.h"
 #include "gf2d_list.h"
 #include "gf2d_callbacks.h"
-#include "simple_logger.h"
+#include "windows_common.h"
 
 int yes_no_free(Window *win)
 {

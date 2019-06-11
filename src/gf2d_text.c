@@ -1,7 +1,7 @@
 #include <SDL_ttf.h>
+#include "simple_logger.h"
 #include "gf2d_text.h"
 #include "gf2d_graphics.h"
-#include "simple_logger.h"
 
 typedef struct
 {

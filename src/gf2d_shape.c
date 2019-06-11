@@ -1,7 +1,7 @@
+#include <assert.h>
+#include "simple_logger.h"
 #include "gf2d_shape.h"
 #include "gf2d_draw.h"
-#include "simple_logger.h"
-#include <assert.h>
 Uint8 gf2d_edge_circle_intersection_poc_old(Edge e,Circle c,Vector2D *poc,Vector2D *normal);
 Uint8 gf2d_edge_to_circle_intersection_poc(Edge e,Circle c,Vector2D *poc,Vector2D *normal);
 Uint8 gf2d_circle_to_edge_intersection_poc(Edge e,Circle c,Vector2D *poc,Vector2D *normal);

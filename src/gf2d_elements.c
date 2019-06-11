@@ -1,12 +1,12 @@
 #include <stdlib.h>
 #include <string.h>
+#include "simple_logger.h"
 #include "gf2d_elements.h"
 #include "gf2d_element_actor.h"
 #include "gf2d_element_button.h"
 #include "gf2d_element_entry.h"
 #include "gf2d_element_list.h"
 #include "gf2d_element_label.h"
-#include "simple_logger.h"
 
 Element *gf2d_element_new()
 {

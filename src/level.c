@@ -1,9 +1,9 @@
-#include "level.h"
-#include "camera.h"
+#include <stdlib.h>
 #include "simple_logger.h"
 #include "simple_json.h"
+#include "level.h"
+#include "camera.h"
 #include "level_object.h"
-#include <stdlib.h>
 
 Level *level_new()
 {

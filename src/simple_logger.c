@@ -1,7 +1,7 @@
-#include "simple_logger.h"
 #include <stdarg.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include "simple_logger.h"
 
 static FILE * __log_file = NULL;
 static int dirty = 0;

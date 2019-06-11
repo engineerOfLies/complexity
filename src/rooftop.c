@@ -1,8 +1,8 @@
 #include <stdlib.h>
-#include "rooftop.h"
 #include "simple_logger.h"
-#include "camera.h"
 #include "gf2d_shape.h"
+#include "rooftop.h"
+#include "camera.h"
 
 Rect rooftop_get_bounds(Roof *roof)
 {

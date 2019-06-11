@@ -1,7 +1,7 @@
-#include "world_obstacles.h"
+#include <stdlib.h>
 #include "simple_json.h"
 #include "simple_logger.h"
-#include <stdlib.h>
+#include "world_obstacles.h"
 
 Uint8 world_obstacle_check_collision(WorldObstacle wo,Uint8 playerstate)
 {

@@ -1,7 +1,7 @@
+#include <simple_json.h>
+#include "simple_logger.h"
 #include "gf2d_input.h"
 #include "gf2d_list.h"
-#include "simple_logger.h"
-#include <simple_json.h>
 
 static List *gf2d_input_list = NULL;
 static const Uint8 * gf2d_input_keys = NULL;

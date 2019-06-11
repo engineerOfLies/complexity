@@ -1,7 +1,7 @@
+#include "simple_logger.h"
 #include "gf2d_element_entry.h"
 #include "gf2d_element_label.h"
 #include "gf2d_mouse.h"
-#include "simple_logger.h"
 #include "gf2d_input.h"
 
 void gf2d_element_entry_draw(Element *element,Vector2D offset)

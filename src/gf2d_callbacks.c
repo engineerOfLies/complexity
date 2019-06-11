@@ -1,8 +1,8 @@
-#include "gf2d_callbacks.h"
-#include "simple_logger.h"
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h> 
+#include "simple_logger.h"
+#include "gf2d_callbacks.h"
 
 Callback *gf2d_callback_new(void (*callback)(void *data),void *data)
 {

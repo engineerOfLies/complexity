@@ -1,6 +1,6 @@
-#include "gf2d_draw.h"
-#include "gf2d_graphics.h"
 #include "simple_logger.h"
+#include "gf2d_graphics.h"
+#include "gf2d_draw.h"
 
 void gf2d_draw_lines(Vector2D *p1,Vector2D *p2, Uint32 lines,Vector4D color)
 {

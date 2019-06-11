@@ -10,16 +10,18 @@ enum FramePositions
     FP_BL = 0,
     FP_BC,
     FP_BR,
-    FP_UL,
+    FP_BMAX,
+    FP_UL = FP_BMAX,
     FP_UC,
-    FP_UR
+    FP_UR,
+    FP_MAX
 };
 
 typedef struct
 {
-    Uint32  timeIndex;      /**<milliseconds from level session start*/
-    int     collectibles[6];/**<contents of collectibles slot, index by the above enum*/
-    int     obstacles[3];   /**<contents of the obstacles slot, index by the bottom */
+    Uint32  timeIndex;              /**<milliseconds from level session start*/
+    int     collectibles[FP_MAX];   /**<contents of collectibles slot, index by the above enum*/
+    int     obstacles[FP_BMAX];     /**<contents of the obstacles slot, index by the bottom */
 }WorldFrame;
 
 typedef struct

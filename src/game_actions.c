@@ -1,7 +1,7 @@
-#include "game_actions.h"
+#include <stdlib.h>
 #include "simple_logger.h"
 #include "gf2d_config.h"
-#include <stdlib.h>
+#include "game_actions.h"
 
 GameAction *action_new()
 {

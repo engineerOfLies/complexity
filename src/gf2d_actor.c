@@ -1,7 +1,6 @@
-#include "gf2d_actor.h"
-#include "simple_logger.h"
-
 #include <stdio.h>
+#include "simple_logger.h"
+#include "gf2d_actor.h"
 
 typedef struct
 {

@@ -1,6 +1,6 @@
 #include "gf2d_entity.h"
-#include "camera.h"
 #include "simple_logger.h"
+#include "camera.h"
 
 
 typedef struct
