@@ -6,7 +6,7 @@
 typedef struct
 {
     Uint8 obstacles[FP_BMAX];   /**<corresponds to each ‘lane’ Index into obstacle definitions, with zero being no obstacle*/
-    Uint8 Collectables[FP_MAX]; /**<corresponds to each possible position (bottom, then top)  Index into Collectables definition, with zero being empty*/
+    Uint8 collectables[FP_MAX]; /**<corresponds to each possible position (bottom, then top)  Index into Collectables definition, with zero being empty*/
     float frameDelay;           /**<don’t use until at least this many frames*/
     float frameCap;             /**<stop using after this many frames*/
     float frequency;            /**<how often this frame should come up*/
@@ -17,7 +17,7 @@ typedef struct
 
 typedef struct
 {
-    List       *worldGenFrameConfigList;
+    List       *frameTypes;
     Uint32      randomSeed;
     TextLine    seedString;
 }WorldGenConfig;
@@ -43,9 +43,9 @@ WorldGenConfig *world_gen_config_list_load(const char *filename);
 
 /**
  * @brief free a loaded list of world gen configurations
- * @param worldGenConfigs the world gen to free
+ * @param wgc the world gen to free
  */
-void world_gen_config_list_free(WorldGenConfig *worldGenConfigs);
+void world_gen_config_free(WorldGenConfig *wgc);
 
 /**
  * @brief generate a seed string for the worldGenConfig provided
