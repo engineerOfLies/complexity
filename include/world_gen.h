@@ -12,6 +12,7 @@ typedef struct
     float frequency;            /**<how often this frame should come up*/
     float frequencyDelta;       /**<how frequency should change over time*/
     float priority;             /**<tie breaker*/
+    int   repeat;               /**<how many times this frame repeats itself in a row*/
     float weight;               /**<calculated*/
 }WorldGenFrameConfig;
 

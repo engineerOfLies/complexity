@@ -108,6 +108,8 @@ WorldGenConfig *world_gen_config_list_load(const char *filename)
                     sj_object_get_value(item,"collectables"),i),&tempi);
             wgfc->collectables[i] = (Uint32)tempi;
         }
+        if (sj_get_integer_value(sj_object_get_value(item,"repeat"),&tempi))
+            wgfc->repeat = (Uint32)tempi;
         sj_get_float_value(sj_object_get_value(item,"frameDelay"),&wgfc->frameDelay);
         sj_get_float_value(sj_object_get_value(item,"frameCap"),&wgfc->frameCap);
         sj_get_float_value(sj_object_get_value(item,"frequency"),&wgfc->frequency);
