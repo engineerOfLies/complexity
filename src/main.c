@@ -16,6 +16,7 @@
 #include "world.h"
 #include "rehab_bot.h"
 #include "training_data.h"
+#include "world_gen.h"
 
 static int _done = 0;
 static Window *_quit = NULL;
@@ -40,7 +41,8 @@ int main(int argc, char *argv[])
     int corrections = 0;
     int i = 0;
     TrainingData *tdata;
-
+    WorldGenConfig *wgc;
+    
     slog("---====BEGIN %s====---",argv[0]);
     
     
@@ -71,9 +73,12 @@ int main(int argc, char *argv[])
     world = world_from_file("calibrations/test_world.json");
     bot = rebot_load("calibrations/bot_init.json");
     tdata = training_load("calibrations/training_data_test.json");
-    
+    wgc = world_gen_config_list_load("calibrations/world_gen_calibrations.json");
+    world_gen_set_seed_number(wgc, rand());
+    /*
     training_build_associate_data(tdata,world);
 
+    
     rebot_assign_training(bot, tdata);
 
     for (i = 0; i < 10;i++)
@@ -86,7 +91,14 @@ int main(int argc, char *argv[])
             break;
         }
     }
+    */
     
+    world_gen_config_reset(wgc, 0);
+    for (i = 0; i < 20000;i+=2000)
+    {
+        slog("for time index %i",i);
+        world_gen_config_calculate_weights(wgc, i);
+    }
     while (!_done)
     {
         gf2d_input_update();
@@ -110,6 +122,8 @@ int main(int argc, char *argv[])
         }
 
     }
+    // cleanup
+    world_gen_config_free(wgc);
     rebot_free(bot);
     world_free(world);
     level_free(level);
