@@ -1,11 +1,11 @@
-#include "player.h"
-#include "level.h"
 #include "gf2d_input.h"
+#include "player.h"
 
 static Entity *_player = NULL;
 
 void player_think(Entity *self);
 void player_update(Entity *self);
+float get_lane_x(Uint8 lane);
 
 Entity *player_new(Vector2D position)
 {
@@ -68,7 +68,7 @@ Entity *player_new(Vector2D position)
 
 void player_set_lane(Entity *player,Uint8 lane)
 {
-    player->position.x = level_get_lane_x(lane);
+    player->position.x = get_lane_x(lane);
     player->lane = lane;
 }
 
@@ -120,4 +120,20 @@ void player_think(Entity *self)
     }
 }
 
+float get_lane_x(Uint8 lane)
+{
+    if (lane == 0)
+    {
+        return 400;
+    }
+    if (lane == 1)
+    {
+        return 600;
+    }
+    if (lane == 2)
+    {
+        return 800;
+    }
+    return 600;
+}
 /*eol@eof*/

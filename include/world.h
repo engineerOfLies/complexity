@@ -1,7 +1,6 @@
 #ifndef __WORLD_H__
 #define __WORLD_H__
 
-#include "rooftop.h"
 #include "gf2d_list.h"
 #include "gf2d_text.h"
 
@@ -42,13 +41,6 @@ void world_free(World *world);
  * @returns NULL on error, or a pointer to a world
  */
 World *world_new();
-
-/**
- * @brief convert a list of rooftops into a world
- * @param rooftops a list of rooftops
- * @return NULL on error, or a world loaded with the data from the rooftops
- */
-World *world_from_rooftop_list(List *rooftops);
 
 /**
  * @brief load a JSON file with world data

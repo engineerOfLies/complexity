@@ -1,0 +1,25 @@
+sprite: images/backgrounds/building_sprite.png
+frameWidth: 590
+frameHeight: 128
+framesPerLine: 1
+scale: 1,1
+color: 255,255,255,255
+colorSpecial: 255,255,255,255
+
+action: tile
+startFrame: 1
+endFrame: 1
+frameRate: 0
+type:   loop
+
+action: start
+startFrame: 2
+endFrame: 2
+frameRate: 0
+type:   loop
+
+action: end
+startFrame: 0
+endFrame: 0
+frameRate: 0
+type:   loop

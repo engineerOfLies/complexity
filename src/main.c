@@ -1,22 +1,21 @@
 #include "simple_logger.h"
 #include "simple_json.h"
-#include "level.h"
-#include "camera.h"
-#include "player.h"
-#include "game_actions.h"
 #include "gf2d_audio.h"
 #include "gf2d_input.h"
 #include "gf2d_entity.h"
 #include "gf2d_graphics.h"
 #include "gf2d_windows.h"
 #include "gf2d_actor.h"
-#include "rooftop.h"
+#include "camera.h"
+#include "player.h"
+#include "game_actions.h"
 #include "windows_common.h"
-#include "world_obstacles.h"
-#include "world.h"
 #include "rehab_bot.h"
 #include "training_data.h"
+#include "world_obstacles.h"
+#include "world.h"
 #include "world_gen.h"
+#include "world_draw.h"
 
 static int _done = 0;
 static Window *_quit = NULL;
@@ -33,13 +32,13 @@ void onExit(void *data)
 
 int main(int argc, char *argv[])
 {
-    Level *level;
     Entity *player;
     init_logger("./complex.log");
     World *world;
     ReBot *bot;
     int corrections = 0;
     int i = 0;
+    Uint32 gamestart;
     TrainingData *tdata;
     WorldGenConfig *wgc;
     
@@ -65,7 +64,6 @@ int main(int argc, char *argv[])
     gf2d_windows_init(128);
     gf2d_entity_system_init(1024);
     
-    level = level_generate(10);
     player = player_new(vector2d(600,600));
     player->velocity.y = -3;
     player_set_lane(player,1);
@@ -99,6 +97,7 @@ int main(int argc, char *argv[])
         slog("for time index %i",i);
         world_gen_config_calculate_weights(wgc, i);
     }
+    gamestart = SDL_GetTicks();
     while (!_done)
     {
         gf2d_input_update();
@@ -109,8 +108,8 @@ int main(int argc, char *argv[])
         camera_move(vector2d(0,player->velocity.y));
         
         gf2d_graphics_clear_screen();
-        
-        level_draw(level,camera_get_offset());
+        world_draw(world, SDL_GetTicks() - gamestart);
+
         gf2d_entity_draw_all();
         
         gf2d_windows_draw_all();
@@ -120,13 +119,11 @@ int main(int argc, char *argv[])
         {
             _quit = window_yes_no("Exit?",onExit,onCancel,NULL,NULL);
         }
-
     }
     // cleanup
     world_gen_config_free(wgc);
     rebot_free(bot);
     world_free(world);
-    level_free(level);
     
     slog("---====END %s====---",argv[0]);
     return 0;
