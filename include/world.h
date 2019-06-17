@@ -79,6 +79,14 @@ float world_frame_compare(WorldFrame *a, WorldFrame *b);
 WorldFrame *world_frame_get_by_time(World *world, Uint32 timeIndex, Uint32 threshold, Uint32 ignore);
 
 /**
+ * @brief get the next frame from the provided world frame, ignoring it we go past timeThreshold
+ * @param world the world to get a frame from
+ * @param target the starting position to search from
+ * @param timeThreshold stop searching if pass this time threshold
+ */
+WorldFrame *world_get_next_frame(World *world,WorldFrame *target,Uint32 timeThreshold);
+
+/**
  * @brief print to logs the state of the frame
  * @param frame the frame to print
  */

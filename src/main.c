@@ -100,6 +100,7 @@ int main(int argc, char *argv[])
     gamestart = SDL_GetTicks();
     while (!_done)
     {
+        slog("game frame");
         gf2d_input_update();
         gf2d_windows_update_all();
         gf2d_entity_think_all();

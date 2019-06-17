@@ -1,6 +1,6 @@
 {
     "obstacleList":"calibrations/obstacle_list.json",
-    "scrollSpeed":1.0,
+    "scrollSpeed":15.0,
     "frames":
     [
         {
