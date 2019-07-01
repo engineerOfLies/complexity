@@ -3,31 +3,144 @@
 #include "simple_logger.h"
 #include "simple_json.h"
 #include "world_gen.h"
+#include "world_obstacles.h"
+
+float world_time_index_to_position(World *world, Uint32 timeIndex)
+{
+    if (!world)
+    {
+        slog("cannot calculate position for NULL world");
+        return -100;
+    }
+    if (world->ticksPerFrame == 0)
+    {
+        slog("cannot calculate position for world with zero ticksPerFrame");
+        return -100;
+    }
+    return - (timeIndex / world->ticksPerFrame);
+}
+
+WorldFrame *world_frame_from_frame_config(WorldGenFrameConfig *frameConfig, Uint32 timeIndex);
+
+World *world_gen_create(WorldGenConfig *wgc,char *obstacleListFile,int frames)
+{
+    World *world = NULL;
+    WorldFrame *worldFrame = NULL;
+    WorldGenFrameConfig *frameConfig = NULL;
+    int i,j;
+    Uint32 timeIndex;
+    
+    if ((!wgc)||(!obstacleListFile))
+    {
+        slog("missing data to generate a world");
+        return NULL;
+    }
+    
+    world = world_new();
+    if (!world)return NULL;
+    
+    gf2d_line_cpy(world->obstacleListFile,obstacleListFile);
+    world->obstacleList = world_obstacle_load(world->obstacleListFile);
+
+    world_gen_config_reset(wgc, 0);
+    for (i = 0; i < frames; i++)
+    {
+        timeIndex = (i*wgc->ticksPerFrame);
+        world_gen_config_calculate_weights(wgc, timeIndex);
+        frameConfig = world_gen_pick_next_frame(wgc);
+        if (frameConfig)
+        {
+            for (j = 0; (j <= frameConfig->repeat)&&(i < frames);j++,i++)
+            {
+                timeIndex = (i*wgc->ticksPerFrame);
+                worldFrame = world_frame_from_frame_config(frameConfig,timeIndex);
+                if (worldFrame)
+                {
+                    world->frames = gf2d_list_append(world->frames,worldFrame);
+                    slog("adding frame of %s to the world at time Index %i",frameConfig->name,timeIndex);
+                }
+            }
+            frameConfig->lastUsed = timeIndex;
+        }
+    }
+    return world;
+}
+
+WorldFrame *world_frame_from_frame_config(WorldGenFrameConfig *frameConfig,Uint32 timeIndex)
+{
+    WorldFrame *worldFrame = NULL;
+    if (!frameConfig)return NULL;
+    worldFrame = world_frame_new();
+    if (!worldFrame)return NULL;
+        
+    worldFrame->timeIndex = timeIndex;
+    memcpy(worldFrame->collectables,frameConfig->collectables,sizeof(int)*FP_MAX);
+    memcpy(worldFrame->obstacles,frameConfig->obstacles,sizeof(int)*FP_BMAX);
+    
+    return worldFrame;
+}
 
 
-void world_get_frame_calculate_weight(WorldGenFrameConfig *conf, Uint32 now)
+WorldGenFrameConfig *world_gen_pick_next_frame(WorldGenConfig *wgc)
+{
+    WorldGenFrameConfig *conf = NULL,*best = NULL;
+    float bestWeight = -1;
+    float bestPriority = -1;
+    int n,c;
+    if (!wgc)return NULL;
+    c = gf2d_list_get_count(wgc->frameTypes);
+    for (n = 0; n < c; n++)
+    {
+        conf = gf2d_list_get_nth(wgc->frameTypes,n);
+        if (!conf)continue;
+        if ((conf->weight > bestWeight)
+            ||((conf->weight == bestWeight)&&(conf->priority > bestPriority)))
+        {
+            best = conf;
+            bestWeight = conf->weight;
+            bestPriority = conf->priority;
+        }
+    }
+    return best;
+}
+
+void world_gen_frame_calculate_weight(WorldGenFrameConfig *conf, Uint32 now)
 {
     Uint32 diff;
     Uint32 frequency;
     if (!conf)return;
     diff = now - conf->lastUsed;
     
+    
     // check lower and upper bounds
-    if (diff < conf->frameDelay)
+    if (now < conf->frameDelay)
     {
         conf->weight = -1;//skip
-        slog("calculated weight for %s at %f",conf->name,conf->weight);
+//        slog("calculated skipping %s too soon!",conf->name,conf->weight);
         return;//skip
     }
-    if ((conf->frameCap > 0)&&(diff > conf->frameCap))
+    if ((conf->frameCap > 0)&&(now > conf->frameCap))
     {
         conf->weight = -1;//skip
-        slog("calculated weight for %s at %f",conf->name,conf->weight);
+//        slog("Skipping %s frame cap hit",conf->name);
         return;//skip
     }
-    frequency = (float)conf->frequency - ((float)diff * conf->frequencyDelta);
-    conf->weight = conf->priority *diff + conf->priority * frequency * 0.00001;
-    slog("calculated weight for %s at %f",conf->name,conf->weight);
+    
+    //calculate function frequency
+    
+    frequency = conf->frequency;
+    //+ ((float)now * conf->frequencyDelta);
+    
+//    slog("calculated frequency for %s: %i",conf->name,frequency);
+    
+    if (diff < frequency)
+    {
+        conf->weight = -1;//skip
+//        slog("Skipping %s, too soon to do again",conf->name);
+        return;//skip
+    }
+    conf->weight = diff * conf->priority;
+//    slog("calculated weight for %s at %f",conf->name,conf->weight);
 }
 
 void world_gen_config_calculate_weights(WorldGenConfig *wgc, Uint32 now)
@@ -40,7 +153,7 @@ void world_gen_config_calculate_weights(WorldGenConfig *wgc, Uint32 now)
     {
         conf = gf2d_list_get_nth(wgc->frameTypes,n);
         if (!conf)continue;
-        world_get_frame_calculate_weight(conf,now);
+        world_gen_frame_calculate_weight(conf,now);
     }
 }
 
@@ -130,6 +243,8 @@ WorldGenConfig *world_gen_config_list_load(const char *filename)
         return NULL;
     }
     
+    sj_get_float_value(sj_object_get_value(json,"ticksPerFrame"),&wgc->ticksPerFrame);
+        
     if (sj_get_integer_value(sj_object_get_value(json,"randomSeed"),&tempi))
         wgc->randomSeed = (Uint32)tempi;
     temps = sj_get_string_value(sj_object_get_value(json,"seedString"));

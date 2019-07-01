@@ -1,56 +1,56 @@
 {
     "obstacleList":"calibrations/obstacle_list.json",
-    "scrollSpeed":15.0,
+    "ticksPerFrame":2000,
     "frames":
     [
         {
             "timeIndex":0,
-            "collecibles":[0,0,0,0,0,0],
+            "collectables":[0,0,0,0,0,0],
             "obstacles":[0,0,0]
         },
         {
             "timeIndex":500,
-            "collecibles":[0,1,0,0,0,0],
+            "collectables":[0,1,0,0,0,0],
             "obstacles":[0,0,0]
         },
         {
             "timeIndex":1000,
-            "collecibles":[0,1,0,0,0,0],
+            "collectables":[0,1,0,0,0,0],
             "obstacles":[0,0,0]
         },
         {
             "timeIndex":1500,
-            "collecibles":[0,1,0,0,0,0],
+            "collectables":[0,1,0,0,0,0],
             "obstacles":[0,0,0]
         },
         {
             "timeIndex":2000,
-            "collecibles":[0,1,0,0,0,0],
+            "collectables":[0,1,0,0,0,0],
             "obstacles":[0,0,0]
         },
         {
             "timeIndex":4000,
-            "collecibles":[0,0,0,0,0,0],
+            "collectables":[0,0,0,0,0,0],
             "obstacles":[1,1,1]
         },
         {
             "timeIndex":6000,
-            "collecibles":[0,0,0,0,0,0],
+            "collectables":[0,0,0,0,0,0],
             "obstacles":[2,2,2]
         },
         {
             "timeIndex":8000,
-            "collecibles":[0,0,0,0,0,0],
+            "collectables":[0,0,0,0,0,0],
             "obstacles":[3,0,0]
         },
         {
             "timeIndex":9500,
-            "collecibles":[1,0,0,0,0,0],
+            "collectables":[1,0,0,0,0,0],
             "obstacles":[0,1,1]
         },
         {
             "timeIndex":10000,
-            "collecibles":[0,0,0,0,1,0],
+            "collectables":[0,0,0,0,1,0],
             "obstacles":[1,1,1]
         }
     ]

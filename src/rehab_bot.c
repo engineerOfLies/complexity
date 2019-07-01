@@ -125,7 +125,7 @@ const char *rebot_pick_action(ReBot *bot,Uint8 position, WorldFrame *frame, List
     WorldObstacle *obstacle = NULL;
     CMetric *metric = NULL;
     float avoidance = 1;
-    float collection = 1;
+//    float collection = 1;
     static ActionChoice actionChoices[AC_MAX];
     if ((!bot)||(!frame))
     {

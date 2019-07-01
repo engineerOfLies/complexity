@@ -6,8 +6,8 @@
 typedef struct
 {
     TextLine    name;             /**<name of the frame slice */
-    Uint8   obstacles[FP_BMAX];   /**<corresponds to each ‘lane’ Index into obstacle definitions, with zero being no obstacle*/
-    Uint8   collectables[FP_MAX]; /**<corresponds to each possible position (bottom, then top)  Index into Collectables definition, with zero being empty*/
+    int     obstacles[FP_BMAX];   /**<corresponds to each ‘lane’ Index into obstacle definitions, with zero being no obstacle*/
+    int     collectables[FP_MAX]; /**<corresponds to each possible position (bottom, then top)  Index into Collectables definition, with zero being empty*/
     float   frameDelay;           /**<don’t use until at least this many frames*/
     float   frameCap;             /**<stop using after this many frames*/
     float   frequency;            /**<how often this frame should come up*/
@@ -23,7 +23,18 @@ typedef struct
     List       *frameTypes;
     Uint32      randomSeed;
     TextLine    seedString;
+    float       ticksPerFrame;
 }WorldGenConfig;
+
+
+/**
+ * @brief create a base world given a configuration
+ * @param wgc the configuration to create the world by
+ * @param obstacleListFile the file to find configuration for possible obstacles
+ * @param frames the request number of frames to generate
+ * @returns NULL on error or a newly allocated world that must be freed
+ */
+World *world_gen_create(WorldGenConfig *wgc,char *obstacleListFile,int frames);
 
 /**
  * @brief allocate and initialize a new world gen configuration
@@ -77,5 +88,12 @@ void world_gen_config_reset(WorldGenConfig *wgc, Uint32 now);
  * @param now the time index (in milliseconds) to calculate for.
  */
 void world_gen_config_calculate_weights(WorldGenConfig *wgc,Uint32 now);
+
+/**
+ * @brief call after world_gen_config_calculate_weights to pick the frame with the highest weight.
+ * @param wgc the world generation config
+ * @returns NULL on no good options, or a valid WorldGenFrameConfig pointer
+ */
+WorldGenFrameConfig *world_gen_pick_next_frame(WorldGenConfig *wgc);
 
 #endif

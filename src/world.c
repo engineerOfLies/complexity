@@ -50,7 +50,7 @@ float world_frame_compare(WorldFrame *a, WorldFrame *b)
     }
     for (i = 0; i < 6;i++)
     {
-        if (a->collectibles[i] == b->collectibles[i])
+        if (a->collectables[i] == b->collectables[i])
         {
             numerator++;
         }
@@ -154,7 +154,6 @@ World *world_from_file(const char *filename)
     SJson *json,*list,*item;
     World *world = NULL;
     WorldFrame *wf = NULL;
-    const char *obstacleListFile = NULL;
     int count, n;
     int i;
     int tempi;
@@ -168,9 +167,9 @@ World *world_from_file(const char *filename)
         sj_free(json);
         return NULL;
     }
-    obstacleListFile = sj_get_string_value(sj_object_get_value(json,"obstacleList"));
-    world->obstacleList = world_obstacle_load(obstacleListFile);
-    sj_get_float_value(sj_object_get_value(json,"scrollSpeed"),&world->scrollSpeed);
+    gf2d_line_cpy(world->obstacleListFile,sj_get_string_value(sj_object_get_value(json,"obstacleList")));
+    world->obstacleList = world_obstacle_load(world->obstacleListFile);
+    sj_get_float_value(sj_object_get_value(json,"ticksPerFrame"),&world->ticksPerFrame);
     list = sj_object_get_value(json,"frames");
     if (!list)
     {
@@ -187,15 +186,15 @@ World *world_from_file(const char *filename)
         wf = world_frame_new();
         sj_get_integer_value(sj_object_get_value(item,"timeIndex"),&tempi);
         wf->timeIndex = (Uint32)tempi;
-        for (i = 0; i < 6;i++)
+        for (i = 0; i < FP_MAX;i++)
         {
             sj_get_integer_value(
                 sj_array_get_nth(
-                    sj_object_get_value(item,"collectibles"),
+                    sj_object_get_value(item,"collectables"),
                                         i),
-                    &wf->collectibles[i]);
+                    &wf->collectables[i]);
         }
-        for (i = 0; i < 3;i++)
+        for (i = 0; i < FP_BMAX;i++)
         {
             sj_get_integer_value(
                 sj_array_get_nth(
@@ -210,4 +209,49 @@ World *world_from_file(const char *filename)
     return world;
 }
 
+void world_save_to_file(World *world,char *filename)
+{
+    int c,n,i;
+    SJson *json,*frames,*item,*array;
+    WorldFrame *wf = NULL;
+    if ((!world)||(!filename))
+    {
+        slog("missing data to save the world");
+        return;
+    }
+    json = sj_object_new();
+    frames = sj_array_new();
+    if ((!json)||(!frames))return;
+    
+    sj_object_insert(json,"obstacleList",sj_new_str(world->obstacleListFile));
+    sj_object_insert(json,"ticksPerFrame",sj_new_int(world->ticksPerFrame));
+    
+    c = gf2d_list_get_count(world->frames);
+    for (n = 0;n < c;n++)
+    {
+        wf = gf2d_list_get_nth(world->frames,n);
+        if (!wf)continue;
+        item = sj_object_new();
+        if (!item)continue;
+        sj_object_insert(item,"timeIndex",sj_new_int(wf->timeIndex));
+        array = sj_array_new();
+        for (i = 0; i < FP_MAX;i++)
+        {
+            sj_array_append(array,sj_new_int(wf->collectables[i]));
+        }
+        sj_object_insert(item,"collectables",array);
+        array = sj_array_new();
+        for (i = 0; i < FP_BMAX;i++)
+        {
+            sj_array_append(array,sj_new_int(wf->obstacles[i]));
+        }
+        sj_object_insert(item,"obstacles",array);
+        sj_array_append(frames,item);
+    }
+    sj_object_insert(json,"frames",frames);
+    
+    
+    sj_save(json,filename);
+    sj_free(json);
+}
 /*eol@eof*/

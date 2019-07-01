@@ -19,15 +19,16 @@ enum FramePositions
 typedef struct
 {
     Uint32  timeIndex;              /**<milliseconds from level session start*/
-    int     collectibles[FP_MAX];   /**<contents of collectibles slot, index by the above enum*/
+    int     collectables[FP_MAX];   /**<contents of collectibles slot, index by the above enum*/
     int     obstacles[FP_BMAX];     /**<contents of the obstacles slot, index by the bottom */
 }WorldFrame;
 
 typedef struct
 {
-    List *obstacleList;     /**<obstacle definitions for the world*/
-    List *frames;           /**<A stream of moments that make up the game world*/
-    float scrollSpeed;      /**<how fast the world moves at the player.  This affects reaction time windows*/
+    TextLine    obstacleListFile; /**<filename to load the obstacles from*/
+    List       *obstacleList;     /**<obstacle definitions for the world*/
+    List       *frames;           /**<A stream of moments that make up the game world*/
+    float       ticksPerFrame;    /**<how fast the world moves at the player.  This affects reaction time windows*/
 }World;
 
 /**
@@ -46,6 +47,13 @@ World *world_new();
  * @brief load a JSON file with world data
  */
 World *world_from_file(const char *filename);
+
+/**
+ * @brief save a game world back to file
+ * @param world the world to save
+ * @param filename the file to save as
+ */
+void world_save_to_file(World *world,char *filename);
 
 /**
  * @brief free a world frame

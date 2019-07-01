@@ -68,7 +68,7 @@ int main(int argc, char *argv[])
     player->velocity.y = -3;
     player_set_lane(player,1);
     
-    world = world_from_file("calibrations/test_world.json");
+//    world = world_from_file("calibrations/test_world.json");
     bot = rebot_load("calibrations/bot_init.json");
     tdata = training_load("calibrations/training_data_test.json");
     wgc = world_gen_config_list_load("calibrations/world_gen_calibrations.json");
@@ -91,28 +91,22 @@ int main(int argc, char *argv[])
     }
     */
     
-    world_gen_config_reset(wgc, 0);
-    for (i = 0; i < 20000;i+=2000)
-    {
-        slog("for time index %i",i);
-        world_gen_config_calculate_weights(wgc, i);
-    }
+    world = world_gen_create(wgc,"calibrations/obstacle_list.json",100);
+    world_save_to_file(world,"generated_world.json");
+
     gamestart = SDL_GetTicks();
     while (!_done)
     {
-        slog("game frame");
+//        slog("game frame");
         gf2d_input_update();
         gf2d_windows_update_all();
         gf2d_entity_think_all();
         gf2d_entity_update_all();
-        
-        camera_move(vector2d(0,player->velocity.y));
-        
         gf2d_graphics_clear_screen();
-        world_draw(world, SDL_GetTicks() - gamestart);
 
+        camera_move(vector2d(0,player->velocity.y));
+        world_draw(world, SDL_GetTicks() - gamestart);
         gf2d_entity_draw_all();
-        
         gf2d_windows_draw_all();
         
         gf2d_grahics_next_frame();
